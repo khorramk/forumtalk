@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
 {
@@ -12,7 +14,8 @@ class CommentController extends Controller
      */
     public function index()
     {
-        
+        $comments =  Comment::all();
+        return response()->json($comments);
     }
 
     /**
@@ -29,6 +32,15 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         //
+        try {
+           $comment = new Comment();
+            $comment->fill($request->all());
+            $comment->save();
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return redirect()->withErrors(['msg' => 500]);
+        }
+        return redirect()->isSuccessful();
     }
 
     /**
@@ -37,6 +49,7 @@ class CommentController extends Controller
     public function show(Comment $comment)
     {
         //
+        return response()->json($comment);
     }
 
     /**
@@ -53,6 +66,8 @@ class CommentController extends Controller
     public function update(Request $request, Comment $comment)
     {
         //
+      $comment =  Comment::update($request->all());
+      return response()->isSuccessful();
     }
 
     /**
@@ -61,5 +76,8 @@ class CommentController extends Controller
     public function destroy(Comment $comment)
     {
         //
+        $comment->forceDelete();
+
+        return response()->isSuccessful();
     }
 }
